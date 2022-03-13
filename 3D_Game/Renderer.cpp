@@ -1,6 +1,7 @@
 #include "Renderer.h"
 #include "File.h"
 #include "Timer.h"
+#include <algorithm>
 
 void Renderer::BeginRender() {
 	glm::vec3 scale(1.0f, 1.0f, 1.0f);
@@ -17,7 +18,7 @@ void Renderer::BeginRender() {
 
 	// Projection matrix
 	float windowAspect = ((float)m_Window->Width() / (float)m_Window->Height());
-	glm::mat4 projection = glm::perspective(m_Fov, windowAspect, m_Near, m_Far);
+	glm::mat4 projection = glm::perspective(m_Gui->m_Fov, windowAspect, m_Near, m_Far);
 
 	m_Program->Bind();
 	Timer timer("Upload uniforms");
@@ -117,6 +118,18 @@ void Renderer::UploadElementsInstanced(Mesh& mesh, std::vector<glm::vec3> offset
 	m_InstanceCount = numInstances;
 }
 
+void Renderer::UploadElementsInstanced(std::vector<std::shared_ptr<Entity>>& entities) {
+	std::vector<glm::vec3> offsets;
+	offsets.reserve(entities.size());
+	// Like Array.prototype.map() in JS
+	std::transform(entities.begin(), entities.end(),
+		std::back_inserter(offsets),
+		[](std::shared_ptr<Entity>& entity) {return entity->GetOffset(); });
+	
+	Mesh& mesh = const_cast<Mesh&>(entities.at(0)->GetMesh());
+	UploadElementsInstanced(mesh, offsets, entities.size());
+}
+
 void Renderer::SetupProgram() {
 	std::string vertShaderPath = "C:\\Users\\Linus\\source\\repos\\3D_Game\\3D_Game\\shaders\\vertex.glsl";
 	auto vertFileContents = File::ReadFile(vertShaderPath);
@@ -169,6 +182,7 @@ void Renderer::Draw() {
 void Renderer::DrawInstanced() {
 	Timer timer("Renderer::Draw");
 	//glDrawElements(GL_TRIANGLES, 6 * 3, GL_UNSIGNED_INT, 0);
+	
 	if (m_Gui->m_DisplayWireFrame)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	else

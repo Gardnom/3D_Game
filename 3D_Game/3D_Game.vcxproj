@@ -151,6 +151,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="app.cpp" />
+    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Gui.cpp" />
     <ClCompile Include="ImGui\imgui.cpp" />
@@ -162,6 +163,8 @@
     <ClCompile Include="ImGui\imgui_widgets.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="ObjFileLoader.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
@@ -173,6 +176,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="core.h" />
+    <ClInclude Include="Entity.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="Gui.h" />
     <ClInclude Include="ImGui\imconfig.h" />
@@ -185,6 +189,7 @@
     <ClInclude Include="ImGui\imstb_truetype.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="ObjFileLoader.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderProgram.h" />

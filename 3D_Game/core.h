@@ -18,7 +18,14 @@
 #include <glm/gtc/quaternion.hpp>
 
 
+typedef std::string HMaterial;
+
 typedef struct Vertex {
 	glm::vec3 position;
 	glm::vec4 colour;
 } Vertex;
+
+typedef struct Face {
+	HMaterial hMaterial;
+	std::vector<int> indicies;
+} Face;

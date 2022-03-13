@@ -54,7 +54,13 @@ public:
 
 	void MakeComponents() {
 		ImGui::Checkbox("Display wireframe", &m_DisplayWireFrame);
+		ImGui::DragFloat("Fov", &m_Fov, 0.1f, 10.0f, 100.0f);
 	}
+
+	friend class Renderer;
+
+private:
+	float m_Fov = 45.0f;
 };
 
 class CubeGui : public GuiModule {

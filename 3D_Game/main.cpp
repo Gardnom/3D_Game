@@ -24,6 +24,9 @@
 #include "Constants.h"
 #include "Shapes.h"
 
+#include "ObjFileLoader.h"
+#include <algorithm>
+
 
 
 
@@ -226,6 +229,10 @@ int main() {
 	Cube cube2(glm::vec3(2.0f, 2.0f, 2.0f));
 	//std::shared_ptr<std::vector<Cube>> cubes = std::make_shared<std::vector<Cube>>();
 	std::vector<std::shared_ptr<Cube>> cubes = { std::make_shared<Cube>(cube), std::make_shared<Cube>(cube2) };
+
+	Entity cubeEntity(cube.m_Mesh, glm::vec3(5.0f, 5.0f, 5.0f));
+	Entity cubeEntity2(cube.m_Mesh, glm::vec3(6.0f, 5.0f, 5.0f));
+	std::vector<std::shared_ptr<Entity>> cubeEntities = { std::make_shared<Entity>(cubeEntity), std::make_shared<Entity>(cubeEntity2) };
 	//cubes->push_back(cube);
 	//cubes->push_back(cube2);
 
@@ -235,7 +242,22 @@ int main() {
 
 	float CameraSpeed = 0.1f;
 
-	bool cursorHidden = false;
+	bool cursorEnabled = false;
+
+	ObjFileLoader objFileLoader;
+	std::string objFilePath = "H:\\Blender\\Exports\\MrPigWrinkled.obj";
+	Mesh objMesh = objFileLoader.LoadMesh(objFilePath);
+
+	std::vector<int> _indicies;
+	_indicies.reserve(objMesh.m_Indicies.size());
+	std::transform(objMesh.m_Indicies.begin(), objMesh.m_Indicies.end(),
+		std::back_inserter(_indicies), [](int index) {return index - 1; });
+
+	objMesh.m_Indicies = _indicies;
+	
+	//glDisable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_FRONT);
 
 	while (!glfwWindowShouldClose(window->m_Window)) {
 		
@@ -299,25 +321,26 @@ int main() {
 		}
 
 		if (Input::KeyPressed(GLFW_KEY_O)) {
-			cursorHidden = !cursorHidden;
-			glfwSetInputMode(window->m_Window, GLFW_CURSOR, cursorHidden ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+			cursorEnabled = !cursorEnabled;
+			glfwSetInputMode(window->m_Window, GLFW_CURSOR, cursorEnabled ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 		}
 
 		const float mouseSensitivity = 0.1f;
+		if (cursorEnabled) {
+			auto mousePos = Input::GetMousePosition();
+			double offsetX = mousePos.x - mousePos.lastX;
+			double offsetY = mousePos.y - mousePos.lastY;
+			//printf("Offset Y: %f\n", offsetY);
+			//printf("Offset X: %f\n", offsetX);
 
-		auto mousePos = Input::GetMousePosition();
-		double offsetX = mousePos.x - mousePos.lastX;
-		double offsetY = mousePos.y - mousePos.lastY;
-		//printf("Offset Y: %f\n", offsetY);
-		//printf("Offset X: %f\n", offsetX);
+			camera->m_Yaw += (offsetX * mouseSensitivity);
+			camera->m_Pitch -= (offsetY * mouseSensitivity);
+			//camera->m_Yaw = glm::clamp(camera->m_Yaw, -179.0f, 0.0f);
+			camera->m_Pitch = glm::clamp(camera->m_Pitch, -89.0f, 89.0f);
+			printf("Pitch: %f\n", camera->m_Pitch);
+			printf("Yaw: %f\n", camera->m_Yaw);
 
-		camera->m_Yaw += (offsetX * mouseSensitivity);
-		camera->m_Pitch -= (offsetY * mouseSensitivity);
-		//camera->m_Yaw = glm::clamp(camera->m_Yaw, -179.0f, 0.0f);
-		camera->m_Pitch = glm::clamp(camera->m_Pitch, -89.0f, 89.0f);
-		printf("Pitch: %f\n", camera->m_Pitch);
-		printf("Yaw: %f\n", camera->m_Yaw);
-
+		}
 
 		glm::vec4 colour(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -374,11 +397,17 @@ int main() {
 		//auto cubeRenderInfo = cube.GetRenderInfo();
 
 		ren->BeginRender();
-		ren->UploadElements(vertices, indicies);
-		ren->Draw();
+		//ren->UploadElements(vertices, indicies);
+		//ren->Draw();
 
 		//std::vector<Shape> shapes{ cube, cube2 };
-		ren->UploadElementsInstanced(cube.m_Mesh, std::vector<glm::vec3> {cubes[0]->m_Offset, cubes[1]->m_Offset}, 2);
+		//ren->UploadElementsInstanced(cube.m_Mesh, std::vector<glm::vec3> {cubes[0]->m_Offset, cubes[1]->m_Offset}, 2);
+		//ren->DrawInstanced();
+
+		ren->UploadElementsInstanced(objMesh, std::vector<glm::vec3> {glm::vec3(0.0f, 0.0f, 0.0f)}, 2);
+		ren->DrawInstanced();
+
+		ren->UploadElementsInstanced(cubeEntities);
 		ren->DrawInstanced();
 		
 		//ren->UploadElements(cubeRenderInfo.first, cubeRenderInfo.second);

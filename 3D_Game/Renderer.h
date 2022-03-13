@@ -10,6 +10,7 @@
 #include "Window.h"
 #include "Mesh.h"
 #include "Camera.h"
+#include "Entity.h"
 
 class RendererOptionsGui;
 
@@ -25,6 +26,8 @@ public:
 
 	void UploadElements(std::vector<Vertex>& vertices, std::vector<int>& indicies);
 	void UploadElementsInstanced(Mesh& mesh, std::vector<glm::vec3> offsets, uint32_t numInstances);
+	void UploadElementsInstanced(std::vector<std::shared_ptr<Entity>>& entities);
+
 	void SetTransform(glm::mat4 transformMatrix);
 	void SetVertices();
 	void SetIndicies();
