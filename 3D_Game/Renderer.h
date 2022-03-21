@@ -29,6 +29,7 @@ public:
 	void UploadElementsInstanced(std::vector<std::shared_ptr<Entity>>& entities);
 
 	void SetTransform(glm::mat4 transformMatrix);
+	void Transform(glm::vec3 scale, float rotation, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f));
 	void SetVertices();
 	void SetIndicies();
 	void Draw();

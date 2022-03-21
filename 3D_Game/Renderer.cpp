@@ -30,8 +30,17 @@ void Renderer::BeginRender() {
 	//m_IndiciesCount = 0;
 }
 
+
 void Renderer::SetTransform(glm::mat4 transformMatrix) {
 	m_Program->UploadUniformMatrix4fv("uTransform", transformMatrix);
+}
+
+void Renderer::Transform(glm::vec3 scale, float rotation, glm::vec3 position) {
+
+	glm::mat4 transform = glm::scale(scale);
+	transform = glm::rotate(transform, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+	transform = glm::translate(transform, position);
+	SetTransform(transform);
 }
 
 void Renderer::UploadElements(std::vector<Vertex>& vertices, std::vector<int>& indicies) {
@@ -101,17 +110,21 @@ void Renderer::UploadElementsInstanced(Mesh& mesh, std::vector<glm::vec3> offset
 	glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(Vertex), (void*)offsetof(Vertex, colour));
 	glEnableVertexAttribArray(1);
 
+	// Set attribute normal
+	glVertexAttribPointer(2, 3, GL_FLOAT, false, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+	glEnableVertexAttribArray(2);
+
 	// Instanced data
 	GLuint instanceVBO;
 	glGenBuffers(1, &instanceVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * offsets.size(), offsets.data(), GL_STATIC_DRAW);
-	
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	// Sets the divisor to per instance for vertexattribute with index 2
-	glVertexAttribDivisor(2, 1);
+	// Sets the divisor to per instance for vertexattribute with index 3
+	glVertexAttribDivisor(3, 1);
 
 	m_NumTris = mesh.m_Indicies.size() / 3;
 	m_IndiciesCount = mesh.m_Indicies.size();

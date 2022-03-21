@@ -27,7 +27,7 @@
 #include "ObjFileLoader.h"
 #include <algorithm>
 
-
+#include "Errors.h"
 
 
 void CreateAndUploadVertexData(ShaderProgram& program, WINDOW_SETTINGS& window) {
@@ -107,13 +107,13 @@ void CreateAndUploadVertexData(ShaderProgram& program, WINDOW_SETTINGS& window) 
 	glm::vec3 center = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::mat4 viewMatrix = glm::lookAt(eye, center, up);
-
+	
 	// Projection matrix
 	float fov = 45.0f;
-	float near = 0.01f;
-	float far = 100.0f;
+	float _near = 0.01f;
+	float _far = 100.0f;
 	float windowAspect = ((float)window.width / (float)window.height);
-	glm::mat4 projection = glm::perspective(fov, windowAspect, near, far);
+	glm::mat4 projection = glm::perspective(fov, windowAspect, _near, _far);
 
 
 	// Create and bind Vertex array object
@@ -164,10 +164,14 @@ void CreateAndUploadVertexData(ShaderProgram& program, WINDOW_SETTINGS& window) 
 	glDrawElements(GL_TRIANGLES, 6 * 3, GL_UNSIGNED_INT, 0);
 }
 
+typedef std::vector<glm::vec3> OffVec;
+
 int main() {
+	
 
 	if (!glfwInit()) {
 		printf("Failed to initialize GLFW!\n");
+		DisplayErrorCritical("Failed to initialize GLFW!");
 		return -1;
 	}
 
@@ -189,12 +193,14 @@ int main() {
 
 	if (window->m_Window == nullptr) {
 		printf("Failed to create window\n");
+		DisplayErrorCritical("Failed to create window\n");
 		glfwTerminate();
 		return -1;
 	}
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		printf("Failed to initialize Glad.\n");
+		DisplayErrorCritical("Failed to initialize Glad.\n");
 		return -1;
 	}
 
@@ -245,25 +251,33 @@ int main() {
 	bool cursorEnabled = false;
 
 	ObjFileLoader objFileLoader;
-	std::string objFilePath = "H:\\Blender\\Exports\\MrPigWrinkled.obj";
+	std::string objFilePath = "H:\\Blender\\Exports\\MultiColouredCube.obj";
 	Mesh objMesh = objFileLoader.LoadMesh(objFilePath);
 
-	std::vector<int> _indicies;
+
+	// To fix indcies starting at index 1 in obj file
+	/*std::vector<int> _indicies;
 	_indicies.reserve(objMesh.m_Indicies.size());
 	std::transform(objMesh.m_Indicies.begin(), objMesh.m_Indicies.end(),
 		std::back_inserter(_indicies), [](int index) {return index - 1; });
 
-	objMesh.m_Indicies = _indicies;
+	objMesh.m_Indicies = _indicies;*/
 	
-	//glDisable(GL_CULL_FACE);
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_FRONT);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_DEPTH_TEST);
 
+	std::shared_ptr<EntityCreatorGui> ecg = std::make_shared<EntityCreatorGui>();
+	std::shared_ptr<EntityListGui> entityListGui = std::make_shared<EntityListGui>();
+	gui.AddModule(ecg);
+	gui.AddModule(entityListGui);
+	
 	while (!glfwWindowShouldClose(window->m_Window)) {
 		
 		Timer timer("Gameloop");
 		glClearColor(153, 69, 86, 0xff);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		gui.Begin();
 
@@ -344,65 +358,10 @@ int main() {
 
 		glm::vec4 colour(0.0f, 0.0f, 0.0f, 1.0f);
 
-		
-
-		std::vector<Vertex> vertices = {
-			// Top Left Front
-			{glm::vec3(xPos - 0.5f , yPos + 0.5f , zPos + 0.5f), colour}, // 0
-			// Top Right Front
-			{glm::vec3(xPos + 0.5f , yPos + 0.5f , zPos + 0.5f), colour}, // 1
-			// Bottom Right Front
-			{glm::vec3(xPos + 0.5f , yPos - 0.5f , zPos + 0.5f), colour}, // 2
-			// Bottom Left Front
-			{glm::vec3(xPos -0.5f , yPos - 0.5f , zPos + 0.5f), colour}, // 3
-
-			// Top Left Behind
-			{glm::vec3(xPos - 0.5f , yPos + 0.5f , zPos - 0.5f), colour}, // 4
-			// Top Right Behind
-			{glm::vec3(xPos + 0.5f , yPos + 0.5f , zPos - 0.5f), colour}, // 5
-			// Bottom Right Behind
-			{glm::vec3(xPos + 0.5f , yPos - 0.5f , zPos - 0.5f), colour}, // 6
-			// Bottom Left Behind
-			{glm::vec3(xPos - 0.5f , yPos - 0.5f , zPos - 0.5f), colour}, // 7
-		};
-
-		for (auto& vert : vertices)
-			vert.position = vert.position * ObjectScale;
-
-		std::vector<int> indicies = {
-			// Face
-			0, 2, 3,
-			0, 1, 2,
-
-			//Top
-			4, 5, 0,
-			5, 1, 0,
-
-			// Left
-			4, 0, 7,
-			0, 3, 7,
-
-			// Right
-			1, 5, 6,
-			1, 2, 6,
-
-			// Back
-			4, 5, 7,
-			5, 6, 7,
-		};
-
-		
-		
-
 		//auto cubeRenderInfo = cube.GetRenderInfo();
 
 		ren->BeginRender();
-		//ren->UploadElements(vertices, indicies);
-		//ren->Draw();
-
-		//std::vector<Shape> shapes{ cube, cube2 };
-		//ren->UploadElementsInstanced(cube.m_Mesh, std::vector<glm::vec3> {cubes[0]->m_Offset, cubes[1]->m_Offset}, 2);
-		//ren->DrawInstanced();
+		
 
 		ren->UploadElementsInstanced(objMesh, std::vector<glm::vec3> {glm::vec3(0.0f, 0.0f, 0.0f)}, 2);
 		ren->DrawInstanced();
@@ -410,6 +369,13 @@ int main() {
 		ren->UploadElementsInstanced(cubeEntities);
 		ren->DrawInstanced();
 		
+	
+		for (auto& pair : Engine::ECS::Ecs::m_Entities) {
+			auto ent = pair.second;
+			ren->UploadElementsInstanced(const_cast<Mesh&>(ent->GetMesh()), OffVec{ glm::vec3(4.0f, 4.0f, 1.0f) }, 1);
+			ren->DrawInstanced();
+		}
+
 		//ren->UploadElements(cubeRenderInfo.first, cubeRenderInfo.second);
 		//ren->Draw();
 		

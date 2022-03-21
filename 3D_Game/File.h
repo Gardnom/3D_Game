@@ -51,4 +51,6 @@ public:
 		}
 		return fileContents;
 	}
+
+	static std::string BrowseForFile(std::string startPath);
 };

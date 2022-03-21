@@ -3,20 +3,21 @@
 #include <vector>
 #include "File.h"
 #include "Mesh.h"
-#include "Material.h"
+
 
 enum ObjIdentifier {
 	v,
 	vn,
 	vt,
 	f,
+	usemtl,
 	other
 };
 
 enum MtlPrefix {
 	kd,
 	newmtl,
-	other,
+	mtlother,
 };
 
 typedef struct ObjIndicies {
@@ -47,6 +48,9 @@ public:
 	std::vector<int> m_VertexIndicies;
 	std::vector<int> m_NormalIndicies;
 	std::vector<int> m_TextureIndicies;
+
+	std::vector<Vertex> m_FaceVertices;
+	std::vector<int> m_FaceIndicies;
 
 	Mesh LoadMesh(std::string& filePath);
 	

@@ -2,6 +2,7 @@
 // GLM stuff
 //#define GLM_EXT_INCLUDED
 //#define GLM_ENABLE_EXPERIMENTAL
+
 #include <glm/gtx/hash.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -17,15 +18,37 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include "Constants.h"
+#include "UUID.h"
 
-typedef std::string HMaterial;
+#include <vector>
+#include <string>
+
+#include <memory>
+
+namespace Engine {
+	typedef std::string HMaterial;
+
+	/*typedef struct Material {
+		glm::vec4 baseColour;
+	};*/
+
+	typedef struct Face {
+		HMaterial hMaterial;
+		std::vector<int> indicies;
+	} Face;
+}
 
 typedef struct Vertex {
 	glm::vec3 position;
 	glm::vec4 colour;
+	glm::vec3 normal = glm::vec3(1.0f, 1.0f, 1.0f);
 } Vertex;
 
-typedef struct Face {
-	HMaterial hMaterial;
-	std::vector<int> indicies;
-} Face;
+template<typename T>
+using SPVector = std::shared_ptr<std::vector<T>>;
+template<typename T>
+SPVector<T> MakeSPVector() {
+	return std::make_shared<std::vector<T>>();
+}
+//typedef std::vector<T> PVector;
