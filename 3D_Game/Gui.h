@@ -181,3 +181,23 @@ private:
 
 
 };
+
+
+class LightSettingsGui : public GuiModule {
+public:
+	glm::vec3 m_Pos;
+
+	LightSettingsGui() : GuiModule("Light settings"), m_Pos(0.0f, 0.0f, 0.0f) {
+	} 
+
+	void MakeComponents() {
+
+		float min = -10.0f;
+		float max = 10.0f;
+		float speed = 0.1f;
+		ImGui::DragFloat("Pos x:", &m_Pos.x, speed, min, max);
+		ImGui::DragFloat("Pos y:", &m_Pos.y, speed, min, max);
+		ImGui::DragFloat("Pos z:", &m_Pos.z, speed, min, max);
+
+	}
+};

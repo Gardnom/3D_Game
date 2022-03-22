@@ -270,8 +270,11 @@ int main() {
 
 	std::shared_ptr<EntityCreatorGui> ecg = std::make_shared<EntityCreatorGui>();
 	std::shared_ptr<EntityListGui> entityListGui = std::make_shared<EntityListGui>();
+	std::shared_ptr<LightSettingsGui> pLightSettingsGui = std::make_shared<LightSettingsGui>();
+
 	gui.AddModule(ecg);
 	gui.AddModule(entityListGui);
+	gui.AddModule(pLightSettingsGui);
 	
 	while (!glfwWindowShouldClose(window->m_Window)) {
 		
@@ -360,8 +363,10 @@ int main() {
 
 		//auto cubeRenderInfo = cube.GetRenderInfo();
 
+
 		ren->BeginRender();
 		
+		ren->SetLightPos(pLightSettingsGui->m_Pos);
 
 		ren->UploadElementsInstanced(objMesh, std::vector<glm::vec3> {glm::vec3(0.0f, 0.0f, 0.0f)}, 2);
 		ren->DrawInstanced();

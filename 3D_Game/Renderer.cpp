@@ -35,6 +35,10 @@ void Renderer::SetTransform(glm::mat4 transformMatrix) {
 	m_Program->UploadUniformMatrix4fv("uTransform", transformMatrix);
 }
 
+void Renderer::SetLightPos(glm::vec3& pos) {
+	m_Program->UploadUniformVec3fv("uLightPos", pos);
+}
+
 void Renderer::Transform(glm::vec3 scale, float rotation, glm::vec3 position) {
 
 	glm::mat4 transform = glm::scale(scale);

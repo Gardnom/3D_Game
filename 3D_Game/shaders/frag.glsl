@@ -4,11 +4,13 @@ flat in vec4 fColor;
 in vec3 Normal;
 in vec3 FragPos;
 
-//uniform vec3 lightPos;
+uniform vec3 uLightPos;
 
 void main()
 {
-    vec3 lightPos = vec3(-3.0, 2.0, 3.0);
+    //vec3 lightPos = vec3(-3.0, 2.0, 3.0);
+    vec3 lightPos = uLightPos;
+    
     vec3 lightColor = vec3(235.0/255, 192.0/255, 52.0/255);
     float ambientStrength = 0.1;
     

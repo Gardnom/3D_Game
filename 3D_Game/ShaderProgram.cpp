@@ -42,6 +42,8 @@ bool ShaderProgram::Link(std::vector<Shader*>const& shaders) {
 		s->~Shader();
 	}
 
+	ProbeUniforms();
+
 	return true;
 }
 
@@ -50,12 +52,37 @@ void ShaderProgram::UploadUniformMatrix4fv(const char* varName, glm::mat4 mat) {
 	glUniformMatrix4fv(varLocation, 1, GL_FALSE, glm::value_ptr(mat));
 }
 
+void ShaderProgram::UploadUniformVec3fv(const char* varName, glm::vec3& vec) {
+	GLint varLocation = GetUniformLocation(varName);
+	glUniform3fv(varLocation, 1, glm::value_ptr(vec));
+}
+
+void ShaderProgram::ProbeUniforms() {
+	int numUniforms;
+	glGetProgramiv(m_ProgramId, GL_ACTIVE_UNIFORMS, &numUniforms);
+
+	int maxCharLength;
+	glGetProgramiv(m_ProgramId, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxCharLength);
+	if (numUniforms > 0 && maxCharLength > 0) {
+		char* charBuffer = (char*)malloc(sizeof(char) * maxCharLength);
+		for (int i = 0; i < numUniforms; i++) {
+			int length, size;
+			GLenum dataType;
+			glGetActiveUniform(m_ProgramId, i, maxCharLength, &length, &size, &dataType, charBuffer);
+			GLint varLocation = glGetUniformLocation(m_ProgramId, charBuffer);
+			m_UniformCache.emplace(charBuffer, varLocation);
+		}
+		free(charBuffer);
+	}
+}
 
 GLint ShaderProgram::GetUniformLocation(const char* varName) {
 	if (m_UniformCache.find(std::string(varName)) != m_UniformCache.end()) {
 		return m_UniformCache[varName];
 	}
-	int numUniforms;
+
+	return 0;
+	/*int numUniforms;
 	glGetProgramiv(m_ProgramId, GL_ACTIVE_UNIFORMS, &numUniforms);
 
 	int maxCharLength;
@@ -74,5 +101,5 @@ GLint ShaderProgram::GetUniformLocation(const char* varName) {
 			}
 		}
 		free(charBuffer);
-	}
+	}*/
 }

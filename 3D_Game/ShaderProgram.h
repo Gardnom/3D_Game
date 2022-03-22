@@ -13,10 +13,12 @@ public:
 	void Bind();
 
 	void UploadUniformMatrix4fv(const char* varName, glm::mat4 mat);
+	void UploadUniformVec3fv(const char* varName, glm::vec3& vec);
 
 	GLuint m_ProgramId;
 
 private:
 	GLint GetUniformLocation(const char* varName);
+	void ProbeUniforms();
 	std::unordered_map<std::string, GLint> m_UniformCache;
 };
