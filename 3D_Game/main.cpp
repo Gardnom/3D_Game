@@ -164,7 +164,21 @@ void CreateAndUploadVertexData(ShaderProgram& program, WINDOW_SETTINGS& window) 
 	glDrawElements(GL_TRIANGLES, 6 * 3, GL_UNSIGNED_INT, 0);
 }
 
-typedef std::vector<glm::vec3> OffVec;
+
+
+ImGuiIO& SetupImGui(const Window& wnd) {
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	(void)io;
+	ImGui::StyleColorsClassic();
+	ImGui_ImplGlfw_InitForOpenGL(wnd.m_Window, true);
+	ImGui_ImplOpenGL3_Init("#version 460");
+	return io;
+	
+}
+
+
 
 int main() {
 	
@@ -186,12 +200,11 @@ int main() {
 	uint32_t windowHeight = 720;
 	const char* windowTitle = "3D Game!";
 
+	
+	App app(windowWidth, windowHeight, windowTitle);
+	
 
-	WINDOW_SETTINGS wSettings = { windowHeight, windowWidth, windowTitle, false };
-
-	std::shared_ptr<Window> window =  std::make_shared<Window>(wSettings);
-
-	if (window->m_Window == nullptr) {
+	if (app.GetWindow().m_Window == nullptr) {
 		printf("Failed to create window\n");
 		DisplayErrorCritical("Failed to create window\n");
 		glfwTerminate();
@@ -206,50 +219,11 @@ int main() {
 
 	glViewport(0, 0, windowWidth, windowHeight);
 	
-	App app(window->m_Window);
-	window->SetCallbacks(Key_Callback, cursor_position_callback, scroll_callback);
+	app.GetWindow().SetCallbacks(Key_Callback, cursor_position_callback, scroll_callback, app.GetWindowSizeFun());
+	
+	SetupImGui(app.GetWindow());
 	
 	
-	
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	ImGui::StyleColorsClassic();
-	ImGui_ImplGlfw_InitForOpenGL(window->m_Window, true);
-	ImGui_ImplOpenGL3_Init("#version 460");
-	
-	//Renderer ren(window);
-	auto camera = std::make_shared<Camera>();
-	std::shared_ptr<Renderer> ren = std::make_shared<Renderer>(window, camera);
-	ren->SetupProgram();
-	
-	Gui gui(ren);
-	
-
-	float ObjectScale = 1;
-	float xPos = 0.0f;
-	float yPos = 0.0f;
-	float zPos = 0.0f;
-
-	Cube cube(glm::vec3(1.0f, 1.0f, 1.0f));
-	Cube cube2(glm::vec3(2.0f, 2.0f, 2.0f));
-	//std::shared_ptr<std::vector<Cube>> cubes = std::make_shared<std::vector<Cube>>();
-	std::vector<std::shared_ptr<Cube>> cubes = { std::make_shared<Cube>(cube), std::make_shared<Cube>(cube2) };
-
-	Entity cubeEntity(cube.m_Mesh, glm::vec3(5.0f, 5.0f, 5.0f));
-	Entity cubeEntity2(cube.m_Mesh, glm::vec3(6.0f, 5.0f, 5.0f));
-	std::vector<std::shared_ptr<Entity>> cubeEntities = { std::make_shared<Entity>(cubeEntity), std::make_shared<Entity>(cubeEntity2) };
-	//cubes->push_back(cube);
-	//cubes->push_back(cube2);
-
-	std::shared_ptr<CubeGui> cubeGui = std::make_shared<CubeGui>();
-	cubeGui->m_Cubes = &cubes;
-	gui.AddModule(cubeGui);
-
-	float CameraSpeed = 0.1f;
-
-	bool cursorEnabled = false;
-
 	ObjFileLoader objFileLoader;
 	std::string objFilePath = "H:\\Blender\\Exports\\MultiColouredCube.obj";
 	Mesh objMesh = objFileLoader.LoadMesh(objFilePath);
@@ -263,136 +237,14 @@ int main() {
 
 	objMesh.m_Indicies = _indicies;*/
 	
+	// Gl configurations
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_LIGHT0);
 	glEnable(GL_DEPTH_TEST);
 
-	std::shared_ptr<EntityCreatorGui> ecg = std::make_shared<EntityCreatorGui>();
-	std::shared_ptr<EntityListGui> entityListGui = std::make_shared<EntityListGui>();
-	std::shared_ptr<LightSettingsGui> pLightSettingsGui = std::make_shared<LightSettingsGui>();
-
-	gui.AddModule(ecg);
-	gui.AddModule(entityListGui);
-	gui.AddModule(pLightSettingsGui);
-	
-	while (!glfwWindowShouldClose(window->m_Window)) {
-		
-		Timer timer("Gameloop");
-		glClearColor(153, 69, 86, 0xff);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		gui.Begin();
-
-		if (Input::KeyInState(GLFW_KEY_E, GLFW_PRESS)) {
-			printf("E was pressed!\n");
-			glfwSetWindowShouldClose(window->m_Window, GLFW_TRUE);
-		}
-
-		if (Input::KeyInState(GLFW_KEY_E, GLFW_RELEASE)) {
-			printf("E was released!\n");
-		}
-		if (Input::KeyPressed(GLFW_KEY_Y)) {
-			wSettings.fullScreen = !wSettings.fullScreen;
-			window->ChangeWindow(wSettings);
-		}
-
-		if (Input::KeyHeld(GLFW_KEY_2)) {
-			ObjectScale += 0.1f;
-		}
-
-		if (Input::KeyHeld(GLFW_KEY_1)) {
-			ObjectScale -= 0.1f;
-		}
-
-		if (Input::KeyPressed(GLFW_KEY_UP)) {
-			yPos += 0.1f;
-		}
-
-		if (Input::KeyPressed(GLFW_KEY_DOWN)) {
-			yPos -= 0.1f;
-		}
-
-		if (Input::KeyPressed(GLFW_KEY_RIGHT)) {
-			xPos += 0.1f;
-		}
-
-		if (Input::KeyPressed(GLFW_KEY_LEFT)) {
-			xPos -= 0.1f;
-		}
-
-		if (Input::KeyHeld(GLFW_KEY_A)) {
-			camera->m_Position -= glm::normalize(glm::cross(camera->GetDirection(), camera->m_Up)) * CameraSpeed;
-		}
-
-		if (Input::KeyHeld(GLFW_KEY_W)) {
-			camera->m_Position += camera->GetDirection() * CameraSpeed;
-		}
-
-		if (Input::KeyHeld(GLFW_KEY_D)) {
-			camera->m_Position += glm::normalize(glm::cross(camera->GetDirection(), camera->m_Up)) * CameraSpeed;
-		}
-
-		if (Input::KeyHeld(GLFW_KEY_S)) {
-			camera->m_Position -= camera->GetDirection() * CameraSpeed;
-		}
-
-		if (Input::KeyPressed(GLFW_KEY_O)) {
-			cursorEnabled = !cursorEnabled;
-			glfwSetInputMode(window->m_Window, GLFW_CURSOR, cursorEnabled ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
-		}
-
-		const float mouseSensitivity = 0.1f;
-		if (cursorEnabled) {
-			auto mousePos = Input::GetMousePosition();
-			double offsetX = mousePos.x - mousePos.lastX;
-			double offsetY = mousePos.y - mousePos.lastY;
-			//printf("Offset Y: %f\n", offsetY);
-			//printf("Offset X: %f\n", offsetX);
-
-			camera->m_Yaw += (offsetX * mouseSensitivity);
-			camera->m_Pitch -= (offsetY * mouseSensitivity);
-			//camera->m_Yaw = glm::clamp(camera->m_Yaw, -179.0f, 0.0f);
-			camera->m_Pitch = glm::clamp(camera->m_Pitch, -89.0f, 89.0f);
-			printf("Pitch: %f\n", camera->m_Pitch);
-			printf("Yaw: %f\n", camera->m_Yaw);
-
-		}
-
-		glm::vec4 colour(0.0f, 0.0f, 0.0f, 1.0f);
-
-		//auto cubeRenderInfo = cube.GetRenderInfo();
-
-
-		ren->BeginRender();
-		
-		ren->SetLightPos(pLightSettingsGui->m_Pos);
-
-		ren->UploadElementsInstanced(objMesh, std::vector<glm::vec3> {glm::vec3(0.0f, 0.0f, 0.0f)}, 2);
-		ren->DrawInstanced();
-
-		ren->UploadElementsInstanced(cubeEntities);
-		ren->DrawInstanced();
-		
-	
-		for (auto& pair : Engine::ECS::Ecs::m_Entities) {
-			auto ent = pair.second;
-			ren->UploadElementsInstanced(const_cast<Mesh&>(ent->GetMesh()), OffVec{ glm::vec3(4.0f, 4.0f, 1.0f) }, 1);
-			ren->DrawInstanced();
-		}
-
-		//ren->UploadElements(cubeRenderInfo.first, cubeRenderInfo.second);
-		//ren->Draw();
-		
-		gui.Render();
-		
-		app.Update();
-		//CreateAndUploadVertexData(program, wSettings);
-
-		glfwSwapBuffers(window->m_Window);
-		glfwPollEvents();
-		
-	}
+	// Start app which will start gameloop
+	app.Run();
 
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();

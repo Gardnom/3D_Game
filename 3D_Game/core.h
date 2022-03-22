@@ -51,4 +51,8 @@ template<typename T>
 SPVector<T> MakeSPVector() {
 	return std::make_shared<std::vector<T>>();
 }
+
+
+typedef std::vector<glm::vec3> OffVec;
+
 //typedef std::vector<T> PVector;

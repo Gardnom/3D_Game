@@ -41,6 +41,7 @@ class Gui {
 public:
 
 	Gui(std::shared_ptr<Renderer>& renderer);
+	Gui();
 
 	void Begin();
 	void Render();

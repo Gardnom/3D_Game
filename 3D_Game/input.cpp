@@ -33,6 +33,6 @@ const MousePosition Input::GetMousePosition() {
 }
 
 bool Input::KeyHeld(int key) {
-	return glfwGetKey(App::m_Window, key) != GLFW_RELEASE;
+	return glfwGetKey(App::m_PWindow->m_Window, key) != GLFW_RELEASE;
 }
 

@@ -10,8 +10,7 @@ void Window::ChangeWindow(WINDOW_SETTINGS newSettings) {
 
 Window::Window(WINDOW_SETTINGS& settings) {
 	m_Settings = settings;
-	GLFWwindow* win = CreateWindow(m_Settings);
-	m_Window = win;
+	m_Window = CreateWindow(m_Settings);
 	glfwMakeContextCurrent(m_Window);
 }
 
@@ -40,11 +39,13 @@ void Window::ActivateCallbacks() {
 	glfwSetKeyCallback(m_Window, m_KeyFun);
 	glfwSetCursorPosCallback(m_Window, m_CursorPosFun);
 	glfwSetScrollCallback(m_Window, m_ScrollFun);
+	glfwSetWindowSizeCallback(m_Window, m_WindowSizeFun);
 }
 
-void Window::SetCallbacks(GLFWkeyfun keyFun, GLFWcursorposfun cursorPosFun, GLFWscrollfun scrollFun) {
+void Window::SetCallbacks(GLFWkeyfun keyFun, GLFWcursorposfun cursorPosFun, GLFWscrollfun scrollFun, GLFWwindowsizefun windowSizeFun) {
 	m_KeyFun = keyFun;
 	m_CursorPosFun = cursorPosFun;
 	m_ScrollFun = scrollFun;
+	m_WindowSizeFun = windowSizeFun;
 	ActivateCallbacks();
 }

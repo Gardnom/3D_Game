@@ -1,6 +1,9 @@
 #include "Gui.h"
 #include "Timer.h"
 
+Gui::Gui() {
+	
+}
 
 Gui::Gui(std::shared_ptr<Renderer>& renderer) {
 	//m_Renderer = renderer;

@@ -16,7 +16,7 @@ public:
 
 	GLFWwindow* CreateWindow(WINDOW_SETTINGS& settings);
 	void ChangeWindow(WINDOW_SETTINGS newSettings);
-	void SetCallbacks(GLFWkeyfun keyFun, GLFWcursorposfun cursorPosFun, GLFWscrollfun scrollFun);
+	void SetCallbacks(GLFWkeyfun keyFun, GLFWcursorposfun cursorPosFun, GLFWscrollfun scrollFun, GLFWwindowsizefun windowSizeFun);
 
 	GLFWwindow* m_Window;
 
@@ -28,10 +28,13 @@ public:
 		return m_Settings.width;
 	}
 
+	friend class App;
+
 private:
 	void ActivateCallbacks();
 	GLFWkeyfun m_KeyFun;
 	GLFWcursorposfun m_CursorPosFun;
 	GLFWscrollfun m_ScrollFun;
+	GLFWwindowsizefun m_WindowSizeFun;
 	WINDOW_SETTINGS m_Settings;
 };
