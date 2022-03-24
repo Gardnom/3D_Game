@@ -48,6 +48,9 @@ typedef struct Vertex {
 template<typename T>
 using SPVector = std::shared_ptr<std::vector<T>>;
 template<typename T>
+using UPVector = std::unique_ptr<std::vector<T>>;
+
+template<typename T>
 SPVector<T> MakeSPVector() {
 	return std::make_shared<std::vector<T>>();
 }

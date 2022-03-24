@@ -13,6 +13,7 @@ public:
 	void Bind();
 
 	void UploadUniformMatrix4fv(const char* varName, glm::mat4 mat);
+	void UploadUniformVec4fv(const char* varName, glm::vec4& vec);
 	void UploadUniformVec3fv(const char* varName, glm::vec3& vec);
 
 	GLuint m_ProgramId;

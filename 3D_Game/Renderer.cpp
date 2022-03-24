@@ -37,6 +37,9 @@ void Renderer::SetTransform(glm::mat4 transformMatrix) {
 
 void Renderer::SetLightPos(glm::vec3& pos) {
 	m_Program->UploadUniformVec3fv("uLightPos", pos);
+
+	glm::vec3 lightColor(235.0 / 255, 192.0 / 255, 52.0 / 255);
+	m_Program->UploadUniformVec3fv("uLightColor", lightColor);
 }
 
 void Renderer::Transform(glm::vec3 scale, float rotation, glm::vec3 position) {

@@ -104,6 +104,15 @@ void App::Run() {
 }
 
 void App::GameLoop() {
+	ObjFileLoader objFileLoader;
+	std::string objFilePath = "H:\\Blender\\Exports\\MultiColouredCube.obj";
+	Mesh lightSourceMesh = objFileLoader.LoadMesh(objFilePath);
+	 
+	glm::vec4 lightColor = glm::vec4(235.0 / 255, 192.0 / 255, 52.0 / 255, 1.0f);
+
+	for (auto& v : lightSourceMesh.m_Vertices)
+		v.colour = lightColor;
+
 	while (!glfwWindowShouldClose(m_PWindow->m_Window)) {
 
 		Timer timer("Gameloop");
@@ -141,6 +150,9 @@ void App::GameLoop() {
 			m_PRenderer->UploadElementsInstanced(const_cast<Mesh&>(ent->GetMesh()), OffVec{ glm::vec3(4.0f, 4.0f, 1.0f) }, 1);
 			m_PRenderer->DrawInstanced();
 		}
+
+		m_PRenderer->UploadElementsInstanced(lightSourceMesh, OffVec{ m_PLightSettingsGui->m_Pos }, 1);
+		m_PRenderer->DrawInstanced();
 
 		m_Gui.Render();
 

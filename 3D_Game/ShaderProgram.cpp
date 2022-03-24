@@ -57,6 +57,11 @@ void ShaderProgram::UploadUniformVec3fv(const char* varName, glm::vec3& vec) {
 	glUniform3fv(varLocation, 1, glm::value_ptr(vec));
 }
 
+void ShaderProgram::UploadUniformVec4fv(const char* varName, glm::vec4& vec) {
+	GLint varLocation = GetUniformLocation(varName);
+	glUniform4fv(varLocation, 1, glm::value_ptr(vec));
+}
+
 void ShaderProgram::ProbeUniforms() {
 	int numUniforms;
 	glGetProgramiv(m_ProgramId, GL_ACTIVE_UNIFORMS, &numUniforms);
