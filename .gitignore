@@ -3,3 +3,4 @@ Debug
 .vs
 /3D_Game/x64
 /3D_Game/Debug
+/3D_Game/vendor/glm/doc
